@@ -7,7 +7,7 @@ import Profile from './pages/Profile/Profile';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App min-h-screen bg-[#E9EAED]">
       <Navbar />
       <Routes>
         <Route path="/watchlist" element={<Watchlist />} />

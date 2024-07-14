@@ -1,10 +1,13 @@
 package com.mymovielist.movieapp.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.mymovielist.movieapp.model.LoginRequest;
 import com.mymovielist.movieapp.model.User;
 import com.mymovielist.movieapp.service.UserService;
 
@@ -49,5 +52,15 @@ public class UserController {
     public ResponseEntity<Void> deleteAllUsers() {
         userService.deleteAllUsers();
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
+        if (user != null) {
+            return ResponseEntity.ok().body(Map.of("success", true, "username", user.getUsername()));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid credentials"));
+        }
     }
 }

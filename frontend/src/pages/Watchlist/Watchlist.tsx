@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useUser } from '../../components/Modal/UserContext';
 
 interface Movie {
   id: number;
@@ -14,28 +15,52 @@ interface Movie {
 const Watchlist: React.FC = () => {
     const [movieId, setMovieId] = useState('');
     const [currentlyWatching, setCurrentlyWatching] = useState<Movie[]>([]);
+    const { isLoggedIn, username } = useUser();
+
+    useEffect(() => {
+        if (isLoggedIn && username) {
+          fetchUserMovies();
+        }
+      }, [isLoggedIn, username]);
+
+    const fetchUserMovies = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8080/api/users/${username}/movies`);
+          const movieIds = response.data;
+          const movieDetails = await Promise.all(movieIds.map(fetchMovieDetails));
+          setCurrentlyWatching(movieDetails);
+        } catch (error) {
+          console.error('Error fetching user movies:', error);
+        }
+    };
+    
+
+    const fetchMovieDetails = async (movieId: string) => {
+        const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
+        const movieData = response.data;
+        return {
+          id: movieData.id,
+          title: movieData.original_title,
+          country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
+          year: new Date(movieData.release_date).getFullYear(),
+          type: 'Drama', // You might want to get this from genres
+          score: movieData.vote_average,
+          progress: 'Watching'
+        };
+    };
 
     const handleSearch = async () => {
+        if (!isLoggedIn) {
+          alert('Please log in to add movies to your watchlist.');
+          return;
+        }
         try {
-                    console.log('Fetching movie data for ID:', movieId);
-        const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
-        console.log('Received response:', response.data);
-            const movieData = response.data;
-            
-            const newMovie: Movie = {
-                id: currentlyWatching.length + 1,
-                title: movieData.original_title,
-                country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
-                year: new Date(movieData.release_date).getFullYear(),
-                type: 'Drama',
-                score: 10,
-                progress: 'Completed'
-            };
-
-            setCurrentlyWatching(prevState => [...prevState, newMovie]);
-            setMovieId('');
+          const movieDetails = await fetchMovieDetails(movieId);
+          await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId);
+          setCurrentlyWatching(prevState => [...prevState, movieDetails]);
+          setMovieId('');
         } catch (error) {
-            console.error('Error fetching movie data:', error);
+          console.error('Error adding movie:', error);
         }
     };
 

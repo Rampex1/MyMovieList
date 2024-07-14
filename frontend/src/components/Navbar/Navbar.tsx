@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import LoginModal from '../Modal/LoginModal';
+import { useUser } from '../Modal/UserContext'; 
 
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const { isLoggedIn, username, logout } = useUser();
+
+    const handleLogin = (loggedInUsername: string) => {
+        // You can call a login function from useUser here if necessary
+        setIsLoginModalOpen(false);
+    };
 
     return (
         <nav className="bg-[#0D99FF] h-[80px] relative mb-[40px]">
@@ -18,7 +27,7 @@ const Navbar: React.FC = () => {
                         {isMenuOpen ? (
                             <path fillRule="evenodd" d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z" />
                         ) : (
-                            <path fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z" />
+                            <path fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z" />
                         )}
                     </svg>
                 </button>
@@ -29,7 +38,22 @@ const Navbar: React.FC = () => {
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">
                         <Link to="/profile" className="block lg:inline-block">Profile</Link>
                     </li>
+                    <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">
+                        {isLoggedIn ? (
+                            <>
+                                <span>Welcome, {username}</span>
+                                <button onClick={logout}>Logout</button>
+                            </>
+                        ) : (
+                            <button onClick={() => setIsLoginModalOpen(true)}>Login</button>
+                        )}
+                    </li>
                 </ul>
+                <LoginModal 
+                    isOpen={isLoginModalOpen} 
+                    onClose={() => setIsLoginModalOpen(false)} 
+                    onLogin={handleLogin} 
+                />
             </div>
         </nav>
     );

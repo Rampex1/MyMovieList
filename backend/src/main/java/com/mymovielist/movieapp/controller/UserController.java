@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,16 @@ public class UserController {
     }
 
     @PostMapping("/{username}/movies")
-    public ResponseEntity<User> addMovieToUser(@PathVariable String username, @RequestBody String movieId) {
-        return userService.addMovieToUser(username, movieId)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> addMovieToUser(@PathVariable String username, @RequestBody String movieId) {
+        try {
+            return userService.addMovieToUser(username, movieId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Error adding movie: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/{username}/movies")

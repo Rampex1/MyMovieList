@@ -13,7 +13,7 @@ interface Movie {
 }
 
 const Watchlist: React.FC = () => {
-    const [movieId, setMovieId] = useState('');
+    const [movieName, setMovieName] = useState('');
     const [currentlyWatching, setCurrentlyWatching] = useState<Movie[]>([]);
     const { isLoggedIn, username } = useUser();
 
@@ -21,7 +21,7 @@ const Watchlist: React.FC = () => {
         if (isLoggedIn && username) {
           fetchUserMovies();
         }
-      }, [isLoggedIn, username]);
+    }, [isLoggedIn, username]);
 
     const fetchUserMovies = async () => {
         try {
@@ -33,7 +33,6 @@ const Watchlist: React.FC = () => {
           console.error('Error fetching user movies:', error);
         }
     };
-    
 
     const fetchMovieDetails = async (movieId: string) => {
         const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
@@ -43,7 +42,7 @@ const Watchlist: React.FC = () => {
           title: movieData.original_title,
           country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
           year: new Date(movieData.release_date).getFullYear(),
-          type: 'Drama', // You might want to get this from genres
+          type: movieData.genres[0]?.name || 'Unknown',
           score: movieData.vote_average,
           progress: 'Watching'
         };
@@ -55,12 +54,36 @@ const Watchlist: React.FC = () => {
           return;
         }
         try {
-          const movieDetails = await fetchMovieDetails(movieId);
-          await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId);
+          console.log(`Searching for movie: ${movieName}`);
+          const searchResponse = await axios.get(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(movieName)}`);
+          console.log('Search response:', searchResponse.data);
+          
+          const searchResults = searchResponse.data.results;
+          
+          if (searchResults.length === 0) {
+            alert('No movies found with that name.');
+            return;
+          }
+    
+          const movieId = searchResults[0].id;
+          console.log(`Adding movie with ID: ${movieId}`);
+    
+          const addResponse = await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId.toString());
+          console.log('Add movie response:', addResponse.data);
+    
+          const movieDetails = await fetchMovieDetails(movieId.toString());
+          console.log('Fetched movie details:', movieDetails);
+    
           setCurrentlyWatching(prevState => [...prevState, movieDetails]);
-          setMovieId('');
+          setMovieName('');
         } catch (error) {
           console.error('Error adding movie:', error);
+          if (axios.isAxiosError(error) && error.response) {
+            console.error('Error response:', error.response.data);
+            alert(`Error adding movie: ${error.response.data.message || 'Please try again.'}`);
+          } else {
+            alert('Error adding movie. Please try again.');
+          }
         }
     };
 
@@ -84,16 +107,16 @@ const Watchlist: React.FC = () => {
             <div className="w-4/5 mx-auto mb-6 flex">
                 <input
                     type="text"
-                    value={movieId}
-                    onChange={(e) => setMovieId(e.target.value)}
-                    placeholder="Enter movie ID"
+                    value={movieName}
+                    onChange={(e) => setMovieName(e.target.value)}
+                    placeholder="Enter movie name"
                     className="flex-grow p-2 border border-gray-300 rounded-l-md"
                 />
                 <button
                     onClick={handleSearch}
                     className="bg-[#0D99FF] text-white p-2 rounded-r-md"
                 >
-                    Confirm
+                    Add Movie
                 </button>
             </div>
 

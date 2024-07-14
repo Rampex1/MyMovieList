@@ -64,9 +64,22 @@ const Watchlist: React.FC = () => {
         }
     };
 
+    const handleDelete = async (movieId: string) => {
+        if (!isLoggedIn) {
+          alert('Please log in to remove movies from your watchlist.');
+          return;
+        }
+        try {
+          await axios.delete(`http://localhost:8080/api/users/${username}/movies/${movieId}`);
+          setCurrentlyWatching(prevState => prevState.filter(movie => movie.id !== parseInt(movieId)));
+        } catch (error) {
+          console.error('Error removing movie:', error);
+        }
+    };
+
     return (
         <div className="flex flex-col items-start w-full p-4">
-            <h1 className="text-3xl font-bold mb-6 ml-[10%]">Welcome to David's Movie List</h1>
+            <h1 className="text-3xl font-bold mb-6 ml-[10%]">Welcome {username}!</h1>
             
             <div className="w-4/5 mx-auto mb-6 flex">
                 <input
@@ -99,6 +112,7 @@ const Watchlist: React.FC = () => {
                         <th className="font-inter text-white p-2 text-left" style={{ fontSize: '12px' }}>Type</th>
                         <th className="font-inter text-white p-2 text-left" style={{ fontSize: '12px' }}>Score</th>
                         <th className="font-inter text-white p-2 text-left" style={{ fontSize: '12px' }}>Progress</th>
+                        <th className="font-inter text-white p-2 text-left" style={{ fontSize: '12px' }}>Edit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,6 +125,14 @@ const Watchlist: React.FC = () => {
                             <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.type}</td>
                             <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.score}</td>
                             <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.progress}</td>
+                            <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>
+                                <button
+                                    onClick={() => handleDelete(movie.id.toString())}
+                                    className="bg-red-500 text-white p-1 rounded"
+                                >
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

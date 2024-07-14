@@ -41,7 +41,6 @@ const Navbar: React.FC = () => {
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">
                         {isLoggedIn ? (
                             <>
-                                <span>Welcome, {username}</span>
                                 <button onClick={logout}>Logout</button>
                             </>
                         ) : (

@@ -60,4 +60,12 @@ public class UserService {
         }
         return null;
     }
+
+    public Optional<User> removeMovieFromUser(String username, String movieId) {
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                user.getMovieIds().removeIf(id -> id.startsWith(movieId));
+                return userRepository.save(user);
+            });
+    }
 }

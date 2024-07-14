@@ -63,4 +63,14 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid credentials"));
         }
     }
+    @DeleteMapping("/{username}/movies/{movieId}")
+    public ResponseEntity<User> removeMovieFromUser(@PathVariable String username, @PathVariable String movieId) {
+        System.out.println("Attempting to remove movie " + movieId + " from user " + username);
+        return userService.removeMovieFromUser(username, movieId)
+            .map(user -> {
+                System.out.println("Movie removed successfully. Updated user: " + user);
+                return ResponseEntity.ok(user);
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
 }

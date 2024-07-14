@@ -75,16 +75,30 @@ const Watchlist: React.FC = () => {
           return;
         }
         try {
-          await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId);
-          const movieDetails = await fetchMovieDetails(movieId);
-          setCurrentlyWatching(prevState => [...prevState, movieDetails]);
+          const response = await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId);
+          if (response.data.added) {
+            fetchUserMovies(); // Refresh the entire list from the backend
+          } 
           setMovieName('');
           setSuggestions([]);
         } catch (error) {
           console.error('Error adding movie:', error);
           alert('Error adding movie. Please try again.');
         }
-    }
+    };
+
+    const handleDelete = async (movieId: string) => {
+        if (!isLoggedIn) {
+          alert('Please log in to remove movies from your watchlist.');
+          return;
+        }
+        try {
+          await axios.delete(`http://localhost:8080/api/users/${username}/movies/${movieId}`);
+          fetchUserMovies(); // Refresh the entire list from the backend
+        } catch (error) {
+          console.error('Error removing movie:', error);
+        }
+    };
 
     const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -99,19 +113,6 @@ const Watchlist: React.FC = () => {
             }
         } else {
             setSuggestions([]);
-        }
-    };
-
-    const handleDelete = async (movieId: string) => {
-        if (!isLoggedIn) {
-          alert('Please log in to remove movies from your watchlist.');
-          return;
-        }
-        try {
-          await axios.delete(`http://localhost:8080/api/users/${username}/movies/${movieId}`);
-          setCurrentlyWatching(prevState => prevState.filter(movie => movie.id !== parseInt(movieId)));
-        } catch (error) {
-          console.error('Error removing movie:', error);
         }
     };
 

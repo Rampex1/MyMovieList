@@ -2,6 +2,7 @@ package com.mymovielist.movieapp.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,16 @@ public class UserController {
     @PostMapping("/{username}/movies")
     public ResponseEntity<?> addMovieToUser(@PathVariable String username, @RequestBody String movieId) {
         try {
-            return userService.addMovieToUser(username, movieId)
-                .map(ResponseEntity::ok)
+            Optional<User> updatedUser = userService.addMovieToUser(username, movieId);
+            return updatedUser
+                .map(user -> {
+                    boolean wasAdded = user.getMovieIds().contains(movieId);
+                    if (wasAdded) {
+                        return ResponseEntity.ok().body(Map.of("message", "Movie added successfully", "added", true));
+                    } else {
+                        return ResponseEntity.ok().body(Map.of("message", "Movie already in watchlist", "added", false));
+                    }
+                })
                 .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             e.printStackTrace();

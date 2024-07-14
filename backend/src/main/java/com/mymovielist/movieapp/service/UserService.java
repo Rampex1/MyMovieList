@@ -26,8 +26,11 @@ public class UserService {
     public Optional<User> addMovieToUser(String username, String movieId) {
         return userRepository.findByUsername(username)
             .map(user -> {
-                user.getMovieIds().add(movieId);
-                return userRepository.save(user);
+                if (!user.getMovieIds().contains(movieId)) {
+                    user.getMovieIds().add(movieId);
+                    return userRepository.save(user);
+                }
+                return user; // Return the user without modification if the movie ID already exists
             });
     }
 

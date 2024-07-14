@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../../components/Modal/UserContext';
 
@@ -12,16 +12,37 @@ interface Movie {
   progress: string;
 }
 
+interface MovieSuggestion {
+    id: number;
+    title: string;
+    release_date: string;
+}
+
 const Watchlist: React.FC = () => {
     const [movieName, setMovieName] = useState('');
     const [currentlyWatching, setCurrentlyWatching] = useState<Movie[]>([]);
+    const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([])
     const { isLoggedIn, username } = useUser();
+    const searchRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isLoggedIn && username) {
           fetchUserMovies();
         }
     }, [isLoggedIn, username]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setSuggestions([]);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const fetchUserMovies = async () => {
         try {
@@ -48,42 +69,36 @@ const Watchlist: React.FC = () => {
         };
     };
 
-    const handleSearch = async () => {
+    const handleSearch = async (movieId: string) => {
         if (!isLoggedIn) {
           alert('Please log in to add movies to your watchlist.');
           return;
         }
         try {
-          console.log(`Searching for movie: ${movieName}`);
-          const searchResponse = await axios.get(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(movieName)}`);
-          console.log('Search response:', searchResponse.data);
-          
-          const searchResults = searchResponse.data.results;
-          
-          if (searchResults.length === 0) {
-            alert('No movies found with that name.');
-            return;
-          }
-    
-          const movieId = searchResults[0].id;
-          console.log(`Adding movie with ID: ${movieId}`);
-    
-          const addResponse = await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId.toString());
-          console.log('Add movie response:', addResponse.data);
-    
-          const movieDetails = await fetchMovieDetails(movieId.toString());
-          console.log('Fetched movie details:', movieDetails);
-    
+          await axios.post(`http://localhost:8080/api/users/${username}/movies`, movieId);
+          const movieDetails = await fetchMovieDetails(movieId);
           setCurrentlyWatching(prevState => [...prevState, movieDetails]);
           setMovieName('');
+          setSuggestions([]);
         } catch (error) {
           console.error('Error adding movie:', error);
-          if (axios.isAxiosError(error) && error.response) {
-            console.error('Error response:', error.response.data);
-            alert(`Error adding movie: ${error.response.data.message || 'Please try again.'}`);
-          } else {
-            alert('Error adding movie. Please try again.');
-          }
+          alert('Error adding movie. Please try again.');
+        }
+    }
+
+    const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setMovieName(value);
+
+        if (value.length > 2) {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(value)}`);
+                setSuggestions(response.data.results.slice(0, 5));
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+            }
+        } else {
+            setSuggestions([]);
         }
     };
 
@@ -104,20 +119,27 @@ const Watchlist: React.FC = () => {
         <div className="flex flex-col items-start w-full p-4">
             <h1 className="text-3xl font-bold mb-6 ml-[10%]">Welcome {username}!</h1>
             
-            <div className="w-4/5 mx-auto mb-6 flex">
+            <div className="w-4/5 mx-auto mb-6 flex relative" ref={searchRef}>
                 <input
                     type="text"
                     value={movieName}
-                    onChange={(e) => setMovieName(e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Enter movie name"
-                    className="flex-grow p-2 border border-gray-300 rounded-l-md"
+                    className="flex-grow p-2 border border-gray-300 rounded-md"
                 />
-                <button
-                    onClick={handleSearch}
-                    className="bg-[#0D99FF] text-white p-2 rounded-r-md"
-                >
-                    Add Movie
-                </button>
+                {suggestions.length > 0 && (
+                    <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
+                        {suggestions.map((movie) => (
+                            <li 
+                                key={movie.id} 
+                                className="p-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => handleSearch(movie.id.toString())}
+                            >
+                                {movie.title} ({movie.release_date.split('-')[0]})
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
 
             <table className="w-4/5 border-collapse bg-white border border-[#E3E3E3] mx-auto mb-12">

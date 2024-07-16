@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useUser } from '../../components/Modal/UserContext';
-import AddMovieModal from '../../components/Modal/AddMovieModal';
+import { useUser } from '../components/Modal/UserContext';
+import AddMovieModal from '../components/Modal/AddMovieModal';
 
 interface Movie {
     id: number;
@@ -231,8 +231,8 @@ const Watchlist: React.FC = () => {
             </div>
 
             {renderMovieTable('Currently Watching')}
-            {renderMovieTable('Completed')}
             {renderMovieTable('Plan To Watch')}
+            {renderMovieTable('Completed')}
             {renderMovieTable('On-hold')}
             {renderMovieTable('Dropped')}
 

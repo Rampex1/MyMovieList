@@ -2,13 +2,15 @@ package com.mymovielist.movieapp.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import com.mymovielist.movieapp.repository.UserRepository;
 import com.mymovielist.movieapp.model.User;
+import com.mymovielist.movieapp.model.MovieEntry;
 
 @Service
 public class UserService {
@@ -26,18 +28,33 @@ public class UserService {
     public Optional<User> addMovieToUser(String username, String movieId) {
         return userRepository.findByUsername(username)
             .map(user -> {
-                if (!user.getMovieIds().contains(movieId)) {
-                    user.getMovieIds().add(movieId);
+                if (user.getMovieEntries().stream().noneMatch(entry -> entry.getMovieId().equals(movieId))) {
+                    MovieEntry newEntry = new MovieEntry(movieId, "Plan To Watch", 0.0); // Default values
+                    user.addMovieEntry(newEntry);
                     return userRepository.save(user);
                 }
-                return user; // Return the user without modification if the movie ID already exists
+                return user;
             });
     }
 
-    public List<String> getUserMovieIds(String username) {
+    public List<MovieEntry> getUserMovies(String username) {
         return userRepository.findByUsername(username)
-            .map(User::getMovieIds)
+            .map(User::getMovieEntries)
             .orElse(List.of());
+    }
+
+    public Optional<User> updateUserMovie(String username, String movieId, String status, Double score) {
+        return userRepository.findByUsername(username)
+            .map(user -> {
+                user.getMovieEntries().stream()
+                    .filter(entry -> entry.getMovieId().equals(movieId))
+                    .findFirst()
+                    .ifPresent(entry -> {
+                        entry.setStatus(status);
+                        entry.setScore(score);
+                    });
+                return userRepository.save(user);
+            });
     }
 
     public List<User> getAllUsers() {
@@ -67,7 +84,9 @@ public class UserService {
     public Optional<User> removeMovieFromUser(String username, String movieId) {
         return userRepository.findByUsername(username)
             .map(user -> {
-                user.getMovieIds().removeIf(id -> id.startsWith(movieId));
+                user.setMovieEntries(user.getMovieEntries().stream()
+                    .filter(entry -> !entry.getMovieId().equals(movieId))
+                    .collect(Collectors.toList()));
                 return userRepository.save(user);
             });
     }

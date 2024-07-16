@@ -15,10 +15,10 @@ public class User {
     @Indexed(unique = true)
     private String username;
     private String password;
-    private List<String> movieIds;
+    private List<MovieEntry> movieEntries;
 
     public User() {
-        this.movieIds = new ArrayList<>();
+        this.movieEntries = new ArrayList<>();
     }
 
     // Getters and setters
@@ -54,19 +54,19 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getMovieIds() {
-        return movieIds;
+    public List<MovieEntry> getMovieEntries() {
+        return movieEntries;
     }
 
-    public void setMovieIds(List<String> movieIds) {
-        this.movieIds = movieIds;
+    public void setMovieEntries(List<MovieEntry> movieEntries) {
+        this.movieEntries = movieEntries;
     }
 
-    // You might also want to add a method to add a single movie ID
-    public void addMovieId(String movieId) {
-        if (this.movieIds == null) {
-            this.movieIds = new ArrayList<>();
+    public void addMovieEntry(MovieEntry movieEntry) {
+        if (this.movieEntries == null) {
+            this.movieEntries = new ArrayList<>();
         }
-        this.movieIds.add(movieId);
+        this.movieEntries.add(movieEntry);
     }
 }
+

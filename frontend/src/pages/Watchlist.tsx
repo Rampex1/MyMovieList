@@ -73,63 +73,6 @@ const Watchlist: React.FC = () => {
         };
       };
 
-      const handleSearch = async (movieId: string) => {
-        if (!isLoggedIn) {
-          alert('Please log in to add movies to your watchlist.');
-          return;
-        }
-        try {
-          const response = await axios.post(
-            `http://localhost:8080/api/users/${username}/movies`,
-            { movieId: movieId.toString() },
-            {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          if (response.data.added) {
-            fetchUserMovies();
-            // Open modal for setting status and score
-            const newMovie = await fetchMovieDetails({ movieId: movieId.toString() });
-            setSelectedMovie(newMovie);
-            setIsModalOpen(true);
-          }
-          setMovieName('');
-          setSuggestions([]);
-        } catch (error) {
-          console.error('Error adding movie:', error);
-          alert('Error adding movie. Please try again.');
-        }
-      };
-
-      const filterButtons = [
-        'All Movies',
-        'Currently Watching',
-        'Completed',
-        'Plan To Watch',
-        'On-hold',
-        'Dropped'
-      ];
-
-      const renderFilterButtons = () => (
-        <div className="flex justify-center mb-6">
-          {filterButtons.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`mx-2 px-4 py-2 rounded ${
-                activeFilter === filter
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-      );
-
       const handleAddOrUpdateMovie = async (status: string, score: number) => {
         if (!selectedMovie) return;
         try {
@@ -162,42 +105,10 @@ const Watchlist: React.FC = () => {
         }
       };
 
-    const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setMovieName(value);
-
-        if (value.length > 2) {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(value)}`);
-                setSuggestions(response.data.results.slice(0, 5));
-            } catch (error) {
-                console.error('Error fetching suggestions:', error);
-            }
-        } else {
-            setSuggestions([]);
-        }
-    };
-
     const handleEditMovie = (movie: Movie) => {
         setSelectedMovie(movie);
         setIsModalOpen(true);
       };
-
-    const renderTables = () => {
-      if (activeFilter === 'All Movies') {
-        return (
-          <>
-            {renderMovieTable('Currently Watching')}
-            {renderMovieTable('Completed')}
-            {renderMovieTable('Plan To Watch')}
-            {renderMovieTable('On-hold')}
-            {renderMovieTable('Dropped')}
-          </>
-        );
-      } else {
-        return renderMovieTable(activeFilter);
-      }
-    };
 
     const renderMovieTable = (status: string) => {
         const filteredMovies = movies.filter(movie => movie.status === status);
@@ -254,31 +165,12 @@ const Watchlist: React.FC = () => {
     return (
         <div className="flex flex-col items-start w-full p-4">
             <h1 className="text-3xl font-bold mb-6 ml-[10%]">Welcome {username}!</h1>
-            
-            <div className="w-4/5 mx-auto mb-6 flex relative" ref={searchRef}>
-                <input
-                    type="text"
-                    value={movieName}
-                    onChange={handleInputChange}
-                    placeholder="Enter movie name"
-                    className="flex-grow p-2 border border-gray-300 rounded-md"
-                />
-                {suggestions.length > 0 && (
-                    <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
-                        {suggestions.map((movie) => (
-                            <li 
-                                key={movie.id} 
-                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleSearch(movie.id.toString())}
-                            >
-                                {movie.title} ({movie.release_date.split('-')[0]})
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
-            {renderFilterButtons()}
-            {renderTables()}
+
+            {renderMovieTable('Currently Watching')}
+            {renderMovieTable('Completed')}
+            {renderMovieTable('Plan To Watch')}
+            {renderMovieTable('On-hold')}
+            {renderMovieTable('Dropped')}
 
             {isModalOpen && (
               <AddMovieModal

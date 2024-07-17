@@ -33,6 +33,9 @@ const Navbar: React.FC = () => {
                 </button>
                 <ul className={`${isMenuOpen ? 'flex' : 'hidden'} lg:flex absolute lg:relative top-[80px] lg:top-0 left-0 right-0 lg:left-auto lg:right-auto flex-col lg:flex-row bg-[#0D99FF] lg:bg-transparent`}>
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-8">
+                        <Link to="/search" className="block lg:inline-block">Search</Link>
+                    </li>
+                    <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-8">
                         <Link to="/watchlist" className="block lg:inline-block">My Watchlist</Link>
                     </li>
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">

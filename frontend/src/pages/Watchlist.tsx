@@ -27,6 +27,7 @@ const Watchlist: React.FC = () => {
     const searchRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const [activeFilter, setActiveFilter] = useState('All Movies');
   
     useEffect(() => {
       if (isLoggedIn && username) {
@@ -102,6 +103,33 @@ const Watchlist: React.FC = () => {
         }
       };
 
+      const filterButtons = [
+        'All Movies',
+        'Currently Watching',
+        'Completed',
+        'Plan To Watch',
+        'On-hold',
+        'Dropped'
+      ];
+
+      const renderFilterButtons = () => (
+        <div className="flex justify-center mb-6">
+          {filterButtons.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`mx-2 px-4 py-2 rounded ${
+                activeFilter === filter
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      );
+
       const handleAddOrUpdateMovie = async (status: string, score: number) => {
         if (!selectedMovie) return;
         try {
@@ -117,6 +145,7 @@ const Watchlist: React.FC = () => {
           alert('Error updating movie. Please try again.');
         }
       };
+      
       const handleDelete = async (movieId: string) => {
         if (!isLoggedIn) {
           alert('Please log in to remove movies from your watchlist.');
@@ -125,8 +154,11 @@ const Watchlist: React.FC = () => {
         try {
           await axios.delete(`http://localhost:8080/api/users/${username}/movies/${movieId}`);
           fetchUserMovies();
+          setIsModalOpen(false);
+          setSelectedMovie(null);
         } catch (error) {
           console.error('Error removing movie:', error);
+          alert('Error removing movie. Please try again.');
         }
       };
 
@@ -150,6 +182,22 @@ const Watchlist: React.FC = () => {
         setSelectedMovie(movie);
         setIsModalOpen(true);
       };
+
+    const renderTables = () => {
+      if (activeFilter === 'All Movies') {
+        return (
+          <>
+            {renderMovieTable('Currently Watching')}
+            {renderMovieTable('Completed')}
+            {renderMovieTable('Plan To Watch')}
+            {renderMovieTable('On-hold')}
+            {renderMovieTable('Dropped')}
+          </>
+        );
+      } else {
+        return renderMovieTable(activeFilter);
+      }
+    };
 
     const renderMovieTable = (status: string) => {
         const filteredMovies = movies.filter(movie => movie.status === status);
@@ -229,23 +277,19 @@ const Watchlist: React.FC = () => {
                     </ul>
                 )}
             </div>
-
-            {renderMovieTable('Currently Watching')}
-            {renderMovieTable('Plan To Watch')}
-            {renderMovieTable('Completed')}
-            {renderMovieTable('On-hold')}
-            {renderMovieTable('Dropped')}
+            {renderFilterButtons()}
+            {renderTables()}
 
             {isModalOpen && (
-                <AddMovieModal
+              <AddMovieModal
                 isOpen={isModalOpen}
                 onClose={() => {
-                    setIsModalOpen(false);
-                    setSelectedMovie(null);
+                  setIsModalOpen(false);
+                  setSelectedMovie(null);
                 }}
                 onSubmit={handleAddOrUpdateMovie}
                 movie={selectedMovie}
-                />
+              />
             )}
         </div>
     );

@@ -2,8 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
-import Watchlist from './pages/Watchlist/Watchlist';
-import Profile from './pages/Profile/Profile';
+import Watchlist from './pages/Watchlist';
+import Profile from './pages/Profile';
 import Search from './pages/Search';
 
 function App() {

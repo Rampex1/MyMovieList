@@ -20,33 +20,17 @@ interface Movie {
   }
 
 const Watchlist: React.FC = () => {
-    const [movieName, setMovieName] = useState('');
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([]);
     const { isLoggedIn, username } = useUser();
     const searchRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-    const [activeFilter, setActiveFilter] = useState('All Movies');
   
     useEffect(() => {
       if (isLoggedIn && username) {
         fetchUserMovies();
       }
     }, [isLoggedIn, username]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-                setSuggestions([]);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
 
     const fetchUserMovies = async () => {
         try {

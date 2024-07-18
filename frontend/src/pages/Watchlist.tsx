@@ -132,12 +132,6 @@ const Watchlist: React.FC = () => {
                     >
                     Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(movie.id.toString())}
-                      className="bg-red-500 text-white p-1 rounded"
-                    >
-                      Delete
-                    </button>
                   </td>
                 </tr>
               ))}
@@ -164,6 +158,7 @@ const Watchlist: React.FC = () => {
                   setSelectedMovie(null);
                 }}
                 onSubmit={handleAddOrUpdateMovie}
+                onDelete={() => selectedMovie && handleDelete(selectedMovie.id.toString())}
                 movie={selectedMovie}
               />
             )}

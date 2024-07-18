@@ -12,10 +12,11 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (status: string, score: number) => void;
+  onDelete: () => void;
   movie: Movie | null;
 }
 
-const AddMovieModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, movie }) => {
+const AddMovieModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, onDelete, movie }) => {
     const [status, setStatus] = useState(movie?.status || '');
     const [score, setScore] = useState<number>(movie?.score || 0);
     const [posterUrl, setPosterUrl] = useState<string | null>(null);
@@ -93,6 +94,13 @@ const AddMovieModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, movie 
               </select>
             </div>
               <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="bg-red-500 text-white p-2 rounded mr-2"
+                >
+                  Delete
+                </button>
                 <button
                   type="button"
                   onClick={onClose}

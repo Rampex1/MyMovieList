@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
 import AddMovieModal from '../components/Modal/AddMovieModal';
 
-interface Movie {
+export interface Movie {
     id: number;
     title: string;
     country: string;

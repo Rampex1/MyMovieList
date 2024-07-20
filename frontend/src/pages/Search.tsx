@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
+import AddMovieModal from '../components/Modal/AddMovieModal';
+import { Movie } from '../pages/Watchlist';
 
 interface MovieSuggestion {
   id: number;
@@ -13,6 +15,8 @@ const Search: React.FC = () => {
   const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([]);
   const { isLoggedIn, username } = useUser();
   const searchRef = useRef<HTMLDivElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const handleSearch = async (movieId: string) => {
     if (!isLoggedIn) {
@@ -20,25 +24,23 @@ const Search: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/users/${username}/movies`,
-        { movieId: movieId.toString() },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      if (response.data.added) {
-        alert('Movie added to your watchlist!');
-      } else {
-        alert('Movie is already in your watchlist.');
-      }
-      setMovieName('');
-      setSuggestions([]);
+      const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
+      const movieData = response.data;
+      setSelectedMovie({
+        id: movieData.id,
+        title: movieData.original_title,
+        country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
+        year: new Date(movieData.release_date).getFullYear(),
+        type: movieData.genres[0]?.name || 'Unknown',
+        score: 0,
+        status: ''
+      });
+      setIsModalOpen(true);
+      setSuggestions([]); // Clear suggestions
+      setMovieName(''); // Optionally clear the search input
     } catch (error) {
-      console.error('Error adding movie:', error);
-      alert('Error adding movie. Please try again.');
+      console.error('Error fetching movie details:', error);
+      alert('Error fetching movie details. Please try again.');
     }
   };
 
@@ -55,6 +57,50 @@ const Search: React.FC = () => {
       }
     } else {
       setSuggestions([]);
+    }
+  };
+
+  const handleAddOrUpdateMovie = async (status: string, score: number) => {
+    if (!selectedMovie) return;
+    try {
+      await axios.post(
+        `http://localhost:8080/api/users/${username}/movies`,
+        { 
+          movieId: selectedMovie.id.toString(),
+          status,
+          score
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      await axios.put(`http://localhost:8080/api/users/${username}/movies/${selectedMovie.id}`, {
+        status,
+        score
+      });
+      alert('Movie added to your watchlist!');
+      setIsModalOpen(false);
+      setSelectedMovie(null);
+      setMovieName('');
+      setSuggestions([]);
+    } catch (error) {
+      console.error('Error adding movie:', error);
+      alert('Error adding movie. Please try again.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedMovie) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/users/${username}/movies/${selectedMovie.id}`);
+      alert('Movie removed from your watchlist.');
+      setIsModalOpen(false);
+      setSelectedMovie(null);
+    } catch (error) {
+      console.error('Error removing movie:', error);
+      alert('Error removing movie. Please try again.');
     }
   };
 
@@ -83,6 +129,18 @@ const Search: React.FC = () => {
           </ul>
         )}
       </div>
+      {isModalOpen && (
+      <AddMovieModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedMovie(null);
+        }}
+        onSubmit={handleAddOrUpdateMovie}
+        onDelete={handleDelete}
+        movie={selectedMovie}
+      />
+    )}
     </div>
   );
 };

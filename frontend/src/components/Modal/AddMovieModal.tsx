@@ -88,8 +88,8 @@ const AddMovieModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, onDele
                 required
               >
                 <option value="">Select Score</option>
-                {[...Array(21)].map((_, i) => (
-                  <option key={i} value={i / 2}>{i / 2}</option>
+                {[...Array(11)].map((_, i) => (
+                  <option key={i} value={i}>{i}</option>
                 ))}
               </select>
             </div>

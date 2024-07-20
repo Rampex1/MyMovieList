@@ -25,12 +25,59 @@ const Watchlist: React.FC = () => {
     const searchRef = useRef<HTMLDivElement>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const [activeFilter, setActiveFilter] = useState('All Movies');
   
     useEffect(() => {
       if (isLoggedIn && username) {
         fetchUserMovies();
       }
     }, [isLoggedIn, username]);
+
+    const filterButtons = [
+      'All Movies',
+      'Currently Watching',
+      'Completed',
+      'Plan To Watch',
+      'On-hold',
+      'Dropped'
+    ];
+
+    const renderFilterButtons = () => (
+      <div className="w-4/5 mx-auto mb-6 bg-blue-500 rounded-t-lg overflow-hidden">
+        <div className="flex">
+          {filterButtons.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`flex-1 px-4 py-2 text-sm font-medium ${
+                activeFilter === filter
+                  ? 'bg-white text-blue-500'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              } transition-colors duration-200 ease-in-out`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+
+    const renderTables = () => {
+      if (activeFilter === 'All Movies') {
+        return (
+          <>
+            {renderMovieTable('Currently Watching')}
+            {renderMovieTable('Completed')}
+            {renderMovieTable('Plan To Watch')}
+            {renderMovieTable('On-hold')}
+            {renderMovieTable('Dropped')}
+          </>
+        );
+      } else {
+        return renderMovieTable(activeFilter);
+      }
+    };
+  
 
     const fetchUserMovies = async () => {
         try {
@@ -141,28 +188,25 @@ const Watchlist: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-start w-full p-4">
-            <h1 className="text-3xl font-bold mb-6 ml-[10%]">Welcome {username}!</h1>
-
-            {renderMovieTable('Currently Watching')}
-            {renderMovieTable('Completed')}
-            {renderMovieTable('Plan To Watch')}
-            {renderMovieTable('On-hold')}
-            {renderMovieTable('Dropped')}
-
-            {isModalOpen && (
-              <AddMovieModal
-                isOpen={isModalOpen}
-                onClose={() => {
-                  setIsModalOpen(false);
-                  setSelectedMovie(null);
-                }}
-                onSubmit={handleAddOrUpdateMovie}
-                onDelete={() => selectedMovie && handleDelete(selectedMovie.id.toString())}
-                movie={selectedMovie}
-              />
-            )}
-        </div>
+      <div className="flex flex-col items-center w-full p-4">
+        <h1 className="text-3xl font-bold mb-6">Welcome {username}!</h1>
+    
+        {renderFilterButtons()}
+        {renderTables()}
+    
+        {isModalOpen && (
+          <AddMovieModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedMovie(null);
+            }}
+            onSubmit={handleAddOrUpdateMovie}
+            onDelete={() => selectedMovie && handleDelete(selectedMovie.id.toString())}
+            movie={selectedMovie}
+          />
+        )}
+      </div>
     );
 };
 

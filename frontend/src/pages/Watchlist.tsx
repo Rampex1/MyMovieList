@@ -188,7 +188,7 @@ const Watchlist: React.FC = () => {
     };
 
     return (
-      <div className="flex flex-col items-center w-full p-4">
+      <div className="flex flex-col items-center w-full p-32">
         <h1 className="text-3xl font-bold mb-6">Welcome {username}!</h1>
     
         {renderFilterButtons()}

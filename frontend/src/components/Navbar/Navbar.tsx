@@ -14,10 +14,10 @@ const Navbar: React.FC = () => {
     };
 
     return (
-        <nav className="bg-[#0D99FF] h-[80px] relative mb-[40px]">
+        <nav className="bg-[#0D99FF] h-[80px] fixed top-0 left-0 right-0 z-50">
             <div className="container mx-auto h-full px-4 flex items-center justify-between">
                 <div className="text-white text-3xl font-bold font-inter pl-2 sm:pl-4">
-                    MyMovieList
+                <Link to="/home" className="block lg:inline-block">MyMovieList</Link>
                 </div>
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -32,9 +32,6 @@ const Navbar: React.FC = () => {
                     </svg>
                 </button>
                 <ul className={`${isMenuOpen ? 'flex' : 'hidden'} lg:flex absolute lg:relative top-[80px] lg:top-0 left-0 right-0 lg:left-auto lg:right-auto flex-col lg:flex-row bg-[#0D99FF] lg:bg-transparent`}>
-                    <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-8">
-                        <Link to="/search" className="block lg:inline-block">Search</Link>
-                    </li>
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-8">
                         <Link to="/watchlist" className="block lg:inline-block">My Watchlist</Link>
                     </li>

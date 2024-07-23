@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
 import AddMovieModal from '../components/Modal/AddMovieModal';
-import { Movie } from '../pages/Watchlist';
+import { Movie } from './Watchlist';
+import backgroundImage from '../assets/background.jpg';
 
 interface MovieSuggestion {
   id: number;
@@ -10,7 +11,7 @@ interface MovieSuggestion {
   release_date: string;
 }
 
-const Search: React.FC = () => {
+const Home: React.FC = () => {
   const [movieName, setMovieName] = useState('');
   const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([]);
   const { isLoggedIn, username } = useUser();
@@ -42,6 +43,11 @@ const Search: React.FC = () => {
       console.error('Error fetching movie details:', error);
       alert('Error fetching movie details. Please try again.');
     }
+  };
+
+  const clearSearch = () => {
+    setMovieName('');
+    setSuggestions([]);
   };
 
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +86,6 @@ const Search: React.FC = () => {
         status,
         score
       });
-      alert('Movie added to your watchlist!');
       setIsModalOpen(false);
       setSelectedMovie(null);
       setMovieName('');
@@ -105,18 +110,35 @@ const Search: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full p-4">
-      <h1 className="text-3xl font-bold mb-6">Search Movies</h1>
-      <div className="w-4/5 mb-6 flex relative" ref={searchRef}>
-        <input
-          type="text"
-          value={movieName}
-          onChange={handleInputChange}
-          placeholder="Enter movie name"
-          className="flex-grow p-2 border border-gray-300 rounded-md"
-        />
+    <div 
+      className="flex flex-col items-center justify-center w-full h-screen p-4 bg-cover bg-center space-y-12"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+      }}
+    >
+      <div className="text-center space-y-6">
+        <h1 className="text-white text-6xl font-extrabold font-inter">MyMovieList</h1>
+        <p className="text-white text-3xl font-inter">Your Ultimate Movie Diary</p>
+      </div>
+
+      <div className="w-full max-w-2xl relative" ref={searchRef}>
+        <div className="relative">
+          <input
+            type="text"
+            value={movieName}
+            onChange={handleInputChange}
+            placeholder="Start Searching for a Movie"
+            className="w-full p-4 pr-12 border border-gray-300 rounded-full text-gray-700 placeholder-gray-400"
+          />
+          <button
+            onClick={clearSearch}
+            className="absolute right-7 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            &#x2715; {/* This is the 'x' character */}
+          </button>
+        </div>
         {suggestions.length > 0 && (
-          <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
+          <ul className="absolute w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
             {suggestions.map((movie) => (
               <li 
                 key={movie.id} 
@@ -129,20 +151,21 @@ const Search: React.FC = () => {
           </ul>
         )}
       </div>
+
       {isModalOpen && (
-      <AddMovieModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedMovie(null);
-        }}
-        onSubmit={handleAddOrUpdateMovie}
-        onDelete={handleDelete}
-        movie={selectedMovie}
-      />
-    )}
+        <AddMovieModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedMovie(null);
+          }}
+          onSubmit={handleAddOrUpdateMovie}
+          onDelete={handleDelete}
+          movie={selectedMovie}
+        />
+      )}
     </div>
   );
 };
 
-export default Search;
+export default Home;

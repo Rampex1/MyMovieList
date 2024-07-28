@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
 import AddMovieModal from '../components/Modal/AddMovieModal';
 import { Movie } from './Watchlist';
 import backgroundImage from '../assets/background.jpg';
+import FeaturedMovie from '../components/FeaturedMovie/FeaturedMovie';
 
 interface MovieSuggestion {
   id: number;
@@ -18,6 +19,7 @@ const Home: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [posterPath, setPosterPath] = useState<string | null>(null);
 
   const handleSearch = async (movieId: string) => {
     if (!isLoggedIn) {
@@ -109,62 +111,83 @@ const Home: React.FC = () => {
     }
   };
 
-  return (
-    <div 
-      className="flex flex-col items-center justify-center w-full h-screen p-4 bg-cover bg-center space-y-12"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-      }}
-    >
-      <div className="text-center space-y-6">
-        <h1 className="text-white text-6xl font-extrabold font-inter">MyMovieList</h1>
-        <p className="text-white text-3xl font-inter">Your Ultimate Movie Diary</p>
-      </div>
+  const fetchMoviePoster = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/movies/316029`);
+      const movieData = response.data;
+      setPosterPath(movieData.backdrop_path);
+    } catch (error) {
+      console.error('Error fetching movie poster:', error);
+    }
+  };
 
-      <div className="w-full max-w-2xl relative" ref={searchRef}>
-        <div className="relative">
-          <input
-            type="text"
-            value={movieName}
-            onChange={handleInputChange}
-            placeholder="Start Searching for a Movie"
-            className="w-full p-4 pr-12 border border-gray-300 rounded-full text-gray-700 placeholder-gray-400"
-          />
-          <button
-            onClick={clearSearch}
-            className="absolute right-7 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            &#x2715; {/* This is the 'x' character */}
-          </button>
+  useEffect(() => {
+    fetchMoviePoster();
+  }, []);
+
+  return (
+    <div>
+      <div 
+        className="flex flex-col items-center justify-center w-full h-screen p-4 bg-cover bg-center space-y-12"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+        }}
+      >
+        <div className="text-center space-y-6">
+          <h1 className="text-white text-6xl font-extrabold font-inter">MyMovieList</h1>
+          <p className="text-white text-3xl font-inter">Your Ultimate Movie Diary</p>
         </div>
-        {suggestions.length > 0 && (
-          <ul className="absolute w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
-            {suggestions.map((movie) => (
-              <li 
-                key={movie.id} 
-                className="p-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSearch(movie.id.toString())}
-              >
-                {movie.title} ({movie.release_date.split('-')[0]})
-              </li>
-            ))}
-          </ul>
+
+        <div className="w-full max-w-2xl relative" ref={searchRef}>
+          <div className="relative">
+            <input
+              type="text"
+              value={movieName}
+              onChange={handleInputChange}
+              placeholder="Start Searching for a Movie"
+              className="w-full p-4 pr-12 border border-gray-300 rounded-full text-gray-700 placeholder-gray-400"
+            />
+            <button
+              onClick={clearSearch}
+              className="absolute right-7 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              &#x2715; {/* This is the 'x' character */}
+            </button>
+          </div>
+          {suggestions.length > 0 && (
+            <ul className="absolute w-full bg-white border border-gray-300 rounded-md mt-1 z-10">
+              {suggestions.map((movie) => (
+                <li 
+                  key={movie.id} 
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleSearch(movie.id.toString())}
+                >
+                  {movie.title} ({movie.release_date.split('-')[0]})
+                </li>
+              ))}
+            </ul>
+          )}
+
+        </div>
+
+        {isModalOpen && (
+          <AddMovieModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedMovie(null);
+            }}
+            onSubmit={handleAddOrUpdateMovie}
+            onDelete={handleDelete}
+            movie={selectedMovie}
+          />
         )}
       </div>
 
-      {isModalOpen && (
-        <AddMovieModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedMovie(null);
-          }}
-          onSubmit={handleAddOrUpdateMovie}
-          onDelete={handleDelete}
-          movie={selectedMovie}
-        />
-      )}
+
+      <FeaturedMovie />
     </div>
+    
   );
 };
 

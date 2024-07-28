@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface Movie {
+export interface Movie {
   id: number;
   title: string;
   status: string;

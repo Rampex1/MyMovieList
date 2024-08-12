@@ -1,5 +1,6 @@
 package com.mymovielist.movieapp.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,10 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mymovielist.movieapp.model.LoginRequest;
 import com.mymovielist.movieapp.model.User;
 import com.mymovielist.movieapp.model.MovieEntry;
 import com.mymovielist.movieapp.service.UserService;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 @RestController
 @RequestMapping("/api/users")
@@ -100,6 +106,32 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Error updating movie: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<Map<String, Object>> getTrendingMovies() {
+        String apiKey = "e43f973af82ec44359fdd966c0401d8f";
+        String url = String.format("https://api.themoviedb.org/3/trending/movie/week?api_key=%s", apiKey);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+            .url(url)
+            .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+            String jsonData = response.body().string();
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(jsonData, Map.class);
+            return ResponseEntity.ok(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Error fetching trending movies: " + e.getMessage()));
         }
     }
 }

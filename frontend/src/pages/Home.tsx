@@ -121,6 +121,13 @@ const Home: React.FC = () => {
     }
   };
 
+  const scrollToFeaturedMovie = () => {
+    const featuredMovieSection = document.getElementById('featured-movie-section');
+    if (featuredMovieSection) {
+      featuredMovieSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     fetchMoviePoster();
   }, []);
@@ -183,9 +190,21 @@ const Home: React.FC = () => {
           />
         )}
       </div>
+      
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <button
+          onClick={scrollToFeaturedMovie}
+          className="bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all duration-300"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
 
-
-      <FeaturedMovie />
+      <div id="featured-movie-section">
+        <FeaturedMovie />
+      </div>
     </div>
     
   );

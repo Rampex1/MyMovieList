@@ -36,4 +36,18 @@ public class MovieService {
             throw new RuntimeException("Failed to fetch movie details", e);
         }
     }
+
+    public String getTrendingMovies() {
+        String url = "https://api.themoviedb.org/3/trending/movie/week?api_key=" + apiKey;
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+    
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to fetch trending movies", e);
+        }
+    }
 }

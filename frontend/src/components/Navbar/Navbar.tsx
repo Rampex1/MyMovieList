@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import LoginModal from '../Modal/LoginModal';
 import { useUser } from '../Modal/UserContext'; 
@@ -7,14 +7,29 @@ const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const { isLoggedIn, username, logout } = useUser();
+    const [isTransparent, setIsTransparent] = useState(false);
 
     const handleLogin = (loggedInUsername: string) => {
         // You can call a login function from useUser here if necessary
         setIsLoginModalOpen(false);
     };
 
+    useEffect(() => {
+        const handleScroll = () => {
+          const featuredMovieSection = document.getElementById('featured-movie-section');
+          if (featuredMovieSection) {
+            const rect = featuredMovieSection.getBoundingClientRect();
+            const isInFeaturedSection = rect.top <= 80 && rect.bottom >= 80; // 80 is the navbar height
+            setIsTransparent(isInFeaturedSection);
+          }
+        };
+      
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
+
     return (
-        <nav className="bg-[#0D99FF] h-[80px] fixed top-0 left-0 right-0 z-50">
+        <nav className={`${isTransparent ? 'bg-transparent' : 'bg-[#0D99FF]'} transition-colors duration-300 h-[80px] fixed top-0 left-0 right-0 z-50`}>
             <div className="container mx-auto h-full px-4 flex items-center justify-between">
                 <div className="text-white text-3xl font-bold font-inter pl-2 sm:pl-4">
                 <Link to="/home" className="block lg:inline-block">MyMovieList</Link>
@@ -31,7 +46,7 @@ const Navbar: React.FC = () => {
                         )}
                     </svg>
                 </button>
-                <ul className={`${isMenuOpen ? 'flex' : 'hidden'} lg:flex absolute lg:relative top-[80px] lg:top-0 left-0 right-0 lg:left-auto lg:right-auto flex-col lg:flex-row bg-[#0D99FF] lg:bg-transparent`}>
+                <ul className={`${isMenuOpen ? 'flex' : 'hidden'} lg:flex absolute lg:relative top-[80px] lg:top-0 left-0 right-0 lg:left-auto lg:right-auto flex-col lg:flex-row ${isTransparent ? 'bg-transparent' : 'bg-[#0D99FF]'} lg:bg-transparent`}>
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-8">
                         <Link to="/watchlist" className="block lg:inline-block">My Watchlist</Link>
                     </li>

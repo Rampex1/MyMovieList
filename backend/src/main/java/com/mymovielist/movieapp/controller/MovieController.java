@@ -1,6 +1,7 @@
 package com.mymovielist.movieapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mymovielist.movieapp.model.Movie;
 import com.mymovielist.movieapp.service.MovieService;
 
 import okhttp3.OkHttpClient;
@@ -8,6 +9,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +69,32 @@ public class MovieController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<Map<String, Object>> getTrendingMovies() {
+        String apiKey = "e43f973af82ec44359fdd966c0401d8f";
+        String url = String.format("https://api.themoviedb.org/3/trending/movie/week?api_key=%s", apiKey);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+            .url(url)
+            .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+            String jsonData = response.body().string();
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(jsonData, Map.class);
+            return ResponseEntity.ok(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Error fetching trending movies: " + e.getMessage()));
         }
     }
 }

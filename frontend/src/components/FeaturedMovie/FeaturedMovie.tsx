@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import TrailerModal from '../Modal/TrailerModal';
 
 interface MovieDetails {
   id: number;
@@ -15,6 +16,8 @@ const FeaturedMovie: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
+  const [trailerKey, setTrailerKey] = useState('');
 
   useEffect(() => {
     const fetchTrendingMovies = async () => {
@@ -55,6 +58,31 @@ const FeaturedMovie: React.FC = () => {
       setCurrentIndex((prevIndex) => 
         prevIndex === trendingMovies.length - 1 ? 0 : prevIndex + 1
       );
+    }
+  };
+
+  const handleWatchNow = async () => {
+    if (!currentMovie) return;
+    try {
+      const response = await axios.get(`http://localhost:8080/api/movies/${currentMovie.id}/videos`);
+      console.log('Video API response:', response.data); // Log the entire response
+  
+      if (response.data && Array.isArray(response.data.results)) {
+        const videos = response.data.results;
+        const trailer = videos.find((video: any) => video.type === 'Trailer');
+        if (trailer) {
+          setTrailerKey(trailer.key);
+          setIsTrailerModalOpen(true);
+        } else {
+          alert('No trailer available for this movie.');
+        }
+      } else {
+        console.error('Unexpected response structure:', response.data);
+        alert('Unexpected data format. Unable to find trailer.');
+      }
+    } catch (error) {
+      console.error('Error fetching movie trailer:', error);
+      alert('Error fetching movie trailer. Please try again.');
     }
   };
 
@@ -101,11 +129,14 @@ const FeaturedMovie: React.FC = () => {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="bg-red-600 text-white px-6 py-2 rounded-full text-sm md:text-base">
-              Watch now
+            <button 
+              onClick={handleWatchNow}
+              className="bg-red-600 text-white px-6 py-2 rounded-full text-sm md:text-base"
+            >
+              Watch trailer
             </button>
             <button className="border border-white text-white px-6 py-2 rounded-full text-sm md:text-base">
-              Watch trailer
+              Add to Watchlist
             </button>
           </div>
         </div>
@@ -137,6 +168,11 @@ const FeaturedMovie: React.FC = () => {
           </button>
         </>
       )}
+      <TrailerModal
+        isOpen={isTrailerModalOpen}
+        onClose={() => setIsTrailerModalOpen(false)}
+        trailerKey={trailerKey}
+      />
     </div>
   );
 };

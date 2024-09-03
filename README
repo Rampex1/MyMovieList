@@ -1,0 +1,6 @@
+backend 
+mvn spring-boot:run
+
+frontend
+npm install
+npm start

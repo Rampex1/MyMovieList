@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../components/Modal/UserContext';
-import AddMovieModal from '../components/Modal/AddMovieModal';
 import TrailerModal from '../components/Modal/TrailerModal';
 
 interface MovieDetails {
@@ -37,7 +36,6 @@ const MovieDetailsPage: React.FC = () => {
   const [cast, setCast] = useState<Credits['cast']>([]);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState('');
-  const [isAddMovieModalOpen, setIsAddMovieModalOpen] = useState(false);
   const { isLoggedIn, username } = useUser();
   const navigate = useNavigate();
   const apiKey = "e43f973af82ec44359fdd966c0401d8f";
@@ -79,24 +77,20 @@ const MovieDetailsPage: React.FC = () => {
     }
   };
 
-  const handleAddToList = () => {
+  const handleAddToList = async () => {
     if (!isLoggedIn) {
       alert('Please log in to add movies to your watchlist.');
-      navigate('/login');
       return;
     }
-    setIsAddMovieModalOpen(true);
-  };
-
-  const handleAddOrUpdateMovie = async (status: string, score: number) => {
     if (!movieDetails) return;
+    
     try {
       await axios.post(
         `http://localhost:8080/api/users/${username}/movies`,
         { 
           movieId: movieDetails.id.toString(),
-          status,
-          score
+          status: 'Plan to Watch',
+          score: 0
         },
         {
           headers: {
@@ -104,7 +98,6 @@ const MovieDetailsPage: React.FC = () => {
           }
         }
       );
-      setIsAddMovieModalOpen(false);
       alert('Movie added to your watchlist!');
     } catch (error) {
       console.error('Error adding movie:', error);
@@ -158,7 +151,7 @@ const MovieDetailsPage: React.FC = () => {
                   onClick={handleAddToList}
                   className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                 >
-                  + Add to List
+                  Add to List
                 </button>
               </div>
             </div>
@@ -217,20 +210,6 @@ const MovieDetailsPage: React.FC = () => {
         onClose={() => setIsTrailerModalOpen(false)}
         trailerKey={trailerKey}
       />
-      {isAddMovieModalOpen && (
-        <AddMovieModal
-          isOpen={isAddMovieModalOpen}
-          onClose={() => setIsAddMovieModalOpen(false)}
-          onSubmit={handleAddOrUpdateMovie}
-          onDelete={() => {}} // This is not needed for adding a new movie
-          movie={{
-            id: movieDetails.id,
-            title: movieDetails.title,
-            score: 0,
-            status: ''
-          }}
-        />
-      )}
     </div>
   );
 };

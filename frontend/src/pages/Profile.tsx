@@ -51,6 +51,7 @@ const Profile: React.FC = () => {
                     <div className="flex-1 bg-white p-4 rounded-lg">
                         <h2 className="text-xl font-semibold mb-3">Updates</h2>
                         {/* Add update content here */}
+                        
                     </div>
                 </div>
             </div>

@@ -1,91 +1,73 @@
-name: CI for Java Spring Boot and React
+name: CI Pipeline
 
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
-  backend:
-    name: Build and Test Backend
+  build-backend:
+    name: Build and Test Spring Boot Backend
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout the code
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Set up JDK 11 (or whichever version you're using)
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: '11'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # Navigate to the backend directory
-      - name: Navigate to Backend Directory
-        run: cd backend
-
-      # Cache Maven dependencies
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+      - name: Cache Docker layers
+        uses: actions/cache@v3
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-buildx-
 
-      # Build and run tests for the backend
-      - name: Build and run backend tests
-        run: mvn -B clean verify
-        working-directory: ./backend
+      - name: Build Docker Image for Backend
+        run: docker build --file backend/Dockerfile --target build --tag backend-build:latest ./backend
 
-      # Run the backend if you need to for further steps (not necessary if just running tests)
-      # - name: Start Spring Boot Backend
-      #   run: mvn spring-boot:run
-      #   working-directory: ./backend
+      - name: Run All Tests with Verbose Output
+        run: |
+          docker run --rm backend-build:latest mvn test -Dtest=com.QuickApply.QuickApply.** -Dsurefire.useFile=false -e -X
+      - name: Print Test Output
+        if: failure()
+        run: cat test-output.txt
+      - name: Build Production Docker Image for Backend
+        if: success()
+        run: docker build --file backend/Dockerfile --tag backend:latest ./backend
 
-  frontend:
-    name: Build and Test Frontend
+  build-frontend:
+    name: Build and Test React Frontend
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout the code
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Navigate to the frontend directory
-      - name: Navigate to Frontend Directory
-        run: cd frontend
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Cache Docker layers
+        uses: actions/cache@v3
         with:
-          node-version: '16'
-
-      # Cache npm dependencies
-      - name: Cache npm dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-buildx-
 
-      # Install frontend dependencies
-      - name: Install Dependencies
-        run: npm install
-        working-directory: ./frontend
+      - name: Build Docker Image for Frontend
+        run: docker build --file frontend/Dockerfile --tag frontend-build:latest ./frontend
 
-      # Run tests for the frontend
-      - name: Run Frontend Tests
-        run: npm test -- --watchAll=false
-        working-directory: ./frontend
+      - name: Build Production Docker Image for Frontend
+        run: docker build --file frontend/Dockerfile --tag frontend:latest ./frontend
 
-      # Build the frontend
-      - name: Build Frontend
-        run: npm run build
-        working-directory: ./frontend
+  # deploy:
+  #   name: Deploy Application
+  #   runs-on: ubuntu-latest
+  #   needs: [build-backend, build-frontend]
+  #   steps:
+  #     - name: Deploy to Production
+  #       run: echo "Add your deployment steps here"

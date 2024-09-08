@@ -51,9 +51,6 @@ const Navbar: React.FC = () => {
                         <Link to="/watchlist" className="block lg:inline-block">My Watchlist</Link>
                     </li>
                     <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">
-                        <Link to="/profile" className="block lg:inline-block">Profile</Link>
-                    </li>
-                    <li className="text-white text-2xl font-inter p-4 lg:p-0 lg:ml-12">
                         {isLoggedIn ? (
                             <>
                                 <button onClick={logout}>Logout</button>

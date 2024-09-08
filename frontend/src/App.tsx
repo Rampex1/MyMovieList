@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import Watchlist from './pages/Watchlist';
 import Profile from './pages/Profile';
 import Home from './pages/Home';
+import MovieDetailsPage from './pages/MovieDetailsPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/watchlist" element={<Watchlist />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/movie/:id" element={<MovieDetailsPage />} />
       </Routes>
     </div>
   );

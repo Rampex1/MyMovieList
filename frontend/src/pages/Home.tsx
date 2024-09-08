@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
-import AddMovieModal from '../components/Modal/AddMovieModal';
 import { Movie } from './Watchlist';
 import backgroundImage from '../assets/background.jpg';
 import FeaturedMovie from '../components/FeaturedMovie/FeaturedMovie';
+import { useNavigate } from 'react-router-dom';
 
 interface MovieSuggestion {
   id: number;
@@ -15,36 +15,13 @@ interface MovieSuggestion {
 const Home: React.FC = () => {
   const [movieName, setMovieName] = useState('');
   const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([]);
-  const { isLoggedIn, username } = useUser();
+  const { isLoggedIn } = useUser();
   const searchRef = useRef<HTMLDivElement>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [posterPath, setPosterPath] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSearch = async (movieId: string) => {
-    if (!isLoggedIn) {
-      alert('Please log in to add movies to your watchlist.');
-      return;
-    }
-    try {
-      const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
-      const movieData = response.data;
-      setSelectedMovie({
-        id: movieData.id,
-        title: movieData.original_title,
-        country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
-        year: new Date(movieData.release_date).getFullYear(),
-        type: movieData.genres[0]?.name || 'Unknown',
-        score: 0,
-        status: ''
-      });
-      setIsModalOpen(true);
-      setSuggestions([]); // Clear suggestions
-      setMovieName(''); // Optionally clear the search input
-    } catch (error) {
-      console.error('Error fetching movie details:', error);
-      alert('Error fetching movie details. Please try again.');
-    }
+  const handleSearch = (movieId: string) => {
+    navigate(`/movie/${movieId}`);
   };
 
   const clearSearch = () => {
@@ -65,49 +42,6 @@ const Home: React.FC = () => {
       }
     } else {
       setSuggestions([]);
-    }
-  };
-
-  const handleAddOrUpdateMovie = async (status: string, score: number) => {
-    if (!selectedMovie) return;
-    try {
-      await axios.post(
-        `http://localhost:8080/api/users/${username}/movies`,
-        { 
-          movieId: selectedMovie.id.toString(),
-          status,
-          score
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      await axios.put(`http://localhost:8080/api/users/${username}/movies/${selectedMovie.id}`, {
-        status,
-        score
-      });
-      setIsModalOpen(false);
-      setSelectedMovie(null);
-      setMovieName('');
-      setSuggestions([]);
-    } catch (error) {
-      console.error('Error adding movie:', error);
-      alert('Error adding movie. Please try again.');
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!selectedMovie) return;
-    try {
-      await axios.delete(`http://localhost:8080/api/users/${username}/movies/${selectedMovie.id}`);
-      alert('Movie removed from your watchlist.');
-      setIsModalOpen(false);
-      setSelectedMovie(null);
-    } catch (error) {
-      console.error('Error removing movie:', error);
-      alert('Error removing movie. Please try again.');
     }
   };
 
@@ -158,7 +92,7 @@ const Home: React.FC = () => {
               onClick={clearSearch}
               className="absolute right-7 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              &#x2715; {/* This is the 'x' character */}
+              &#x2715;
             </button>
           </div>
           {suggestions.length > 0 && (
@@ -174,21 +108,7 @@ const Home: React.FC = () => {
               ))}
             </ul>
           )}
-
         </div>
-
-        {isModalOpen && (
-          <AddMovieModal
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedMovie(null);
-            }}
-            onSubmit={handleAddOrUpdateMovie}
-            onDelete={handleDelete}
-            movie={selectedMovie}
-          />
-        )}
       </div>
       
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
@@ -206,7 +126,6 @@ const Home: React.FC = () => {
         <FeaturedMovie />
       </div>
     </div>
-    
   );
 };
 

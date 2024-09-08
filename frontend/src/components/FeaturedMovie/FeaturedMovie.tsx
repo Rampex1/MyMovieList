@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import TrailerModal from '../Modal/TrailerModal';
+import { useNavigate } from 'react-router-dom';
 
 interface MovieDetails {
   id: number;
@@ -18,6 +19,7 @@ const FeaturedMovie: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrendingMovies = async () => {
@@ -59,6 +61,10 @@ const FeaturedMovie: React.FC = () => {
         prevIndex === trendingMovies.length - 1 ? 0 : prevIndex + 1
       );
     }
+  };
+
+  const handleSearch = (movieId: string) => {
+    navigate(`/movie/${movieId}`);
   };
 
   const handleWatchNow = async () => {
@@ -135,7 +141,10 @@ const FeaturedMovie: React.FC = () => {
             >
               Watch trailer
             </button>
-            <button className="border border-white text-white px-6 py-2 rounded-full text-sm md:text-base">
+            <button 
+              className="border border-white text-white px-6 py-2 rounded-full text-sm md:text-base"
+              onClick={() => handleSearch(currentMovie.id.toString())}  
+            >
               Add to Watchlist
             </button>
           </div>

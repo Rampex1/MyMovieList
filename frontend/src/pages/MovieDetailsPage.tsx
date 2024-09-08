@@ -22,12 +22,19 @@ interface MovieDetails {
 
 interface Credits {
   crew: { job: string; name: string }[];
+  cast: { 
+    id: number;
+    name: string;
+    character: string;
+    profile_path: string | null;
+  }[];
 }
 
 const MovieDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
   const [director, setDirector] = useState<string>('');
+  const [cast, setCast] = useState<Credits['cast']>([]);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState('');
   const [isAddMovieModalOpen, setIsAddMovieModalOpen] = useState(false);
@@ -45,6 +52,7 @@ const MovieDetailsPage: React.FC = () => {
         setMovieDetails(detailsResponse.data);
         const directorInfo = (creditsResponse.data as Credits).crew.find(person => person.job === 'Director');
         setDirector(directorInfo ? directorInfo.name : 'Unknown');
+        setCast(creditsResponse.data.cast);
       } catch (error) {
         console.error('Error fetching movie details:', error);
       }
@@ -171,7 +179,7 @@ const MovieDetailsPage: React.FC = () => {
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-md p-6 w-full md:w-1/3">
-          <div className="bg-[#0D99FF] text-white p-2 rounded-t-lg">
+          <div className="bg-[#0D99FF] text-white p-2">
             <h2 className="text-2xl font-bold">Details</h2>
           </div>
           <div className="p-4">
@@ -182,6 +190,24 @@ const MovieDetailsPage: React.FC = () => {
             <p><strong>Duration:</strong> {formattedRuntime}</p>
             <p><strong>Budget:</strong> ${budget.toLocaleString()}</p>
             <p><strong>Revenue:</strong> ${revenue.toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 mt-8">
+        <h2 className="text-2xl font-bold mb-4">Cast</h2>
+        <div className="overflow-x-auto">
+          <div className="flex space-x-4 pb-4">
+            {cast.map((actor) => (
+              <div key={actor.id} className="flex-none w-40">
+                <img
+                  src={actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : '/placeholder-avatar.png'}
+                  alt={actor.name}
+                  className="w-full h-56 object-cover rounded-lg shadow-md"
+                />
+                <p className="mt-2 font-bold text-sm">{actor.name}</p>
+                <p className="text-sm text-gray-600">{actor.character}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

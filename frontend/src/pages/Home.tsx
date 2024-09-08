@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
-import { Movie } from './Watchlist';
 import backgroundImage from '../assets/background.jpg';
 import FeaturedMovie from '../components/FeaturedMovie/FeaturedMovie';
 import { useNavigate } from 'react-router-dom';

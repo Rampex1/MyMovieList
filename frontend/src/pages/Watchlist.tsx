@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../components/Modal/UserContext';
 import AddMovieModal from '../components/Modal/AddMovieModal';
+import { useNavigate } from 'react-router-dom';
 
 export interface Movie {
     id: number;
@@ -26,6 +27,7 @@ const Watchlist: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
     const [activeFilter, setActiveFilter] = useState('All Movies');
+    const navigate = useNavigate();
   
     useEffect(() => {
       if (isLoggedIn && username) {
@@ -61,6 +63,10 @@ const Watchlist: React.FC = () => {
         </div>
       </div>
     );
+
+    const handleSearch = (movieId: string) => {
+      navigate(`/movie/${movieId}`);
+    };
 
     const renderTables = () => {
       if (activeFilter === 'All Movies') {
@@ -166,7 +172,11 @@ const Watchlist: React.FC = () => {
               {filteredMovies.map((movie, index) => (
                 <tr key={movie.id} className={index % 2 === 0 ? "bg-[#BDE3FF]" : "bg-white"}>
                     <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.id}</td>
-                    <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.title}</td>
+                    <td 
+                      className="font-inter text-[#0D99FF] p-2 hover:text-[#065f9f] cursor-pointer" 
+                      style={{ fontSize: '12px' }}
+                      onClick={() => handleSearch(movie.id.toString())}
+                    >{movie.title}</td>
                     <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.country}</td>
                     <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.year}</td>
                     <td className="font-inter text-[#0D99FF] p-2" style={{ fontSize: '12px' }}>{movie.type}</td>

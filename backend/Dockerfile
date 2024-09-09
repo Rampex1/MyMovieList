@@ -15,12 +15,11 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Runtime stage using JDK 17
-FROM eclipse-temurin:17-jre-jammy
+FROM maven:3.9.5-eclipse-temurin-17-focal
 # Set working directory inside the container
 WORKDIR /app
-# Copy the built JAR file from the build stage
-COPY --from=build /app/target/movies-0.0.1-SNAPSHOT.jar /app/movies-0.0.1-SNAPSHOT.jar
-# Expose the port
+COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/pom.xml ./
+COPY --from=build /app/src ./src
 EXPOSE 8080
-# Command to run the Spring Boot application
-CMD ["java", "-jar", "movies-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]

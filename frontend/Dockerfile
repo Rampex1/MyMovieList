@@ -1,7 +1,7 @@
 # Frontend Dockerfile
 
 # Use the official Node.js image
-FROM node:18-alpine
+FROM node:17-alpine
 
 # Set working directory inside the container
 WORKDIR /app

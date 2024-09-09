@@ -1,5 +1,5 @@
 # Stage 1: Build stage using Maven with JDK 17 (for compatibility)
-FROM maven:3.8.7-openjdk-17-slim AS build
+FROM maven:3.8.7-jdk-17-slim AS build
 
 # Set the working directory inside the container
 WORKDIR /app

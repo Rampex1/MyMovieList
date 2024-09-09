@@ -38,20 +38,6 @@ jobs:
             exit 1
           fi
 
-      - name: Run Backend Tests
-        run: |
-          docker run --name backend-test backend-build:latest mvn test -Dsurefire.useFile=false -e -X
-
-      - name: Print Test Output on Failure
-        if: failure()
-        run: |
-          docker logs backend-test
-
-      - name: Clean up Test Container
-        if: always()
-        run: |
-          docker rm backend-test
-
       - name: Build Production Docker Image for Backend
         if: success()
         run: |

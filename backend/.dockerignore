@@ -1,0 +1,22 @@
+# Ignore Maven build outputs
+target/
+
+# Ignore Eclipse and IntelliJ project files
+.project
+.classpath
+.settings/
+.idea/
+
+# Ignore local Maven repository
+.m2/
+
+# Ignore IDE config files
+*.iml
+
+# Ignore OS-generated files
+.DS_Store
+*.log
+
+# Ignore git files
+.git
+.gitignore

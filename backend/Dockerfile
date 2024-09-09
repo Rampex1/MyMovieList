@@ -1,5 +1,5 @@
-# Use an official Maven image with JDK 22 to build and run the application
-FROM maven:3.8.7-openjdk-22-slim AS build
+# Stage 1: Build stage using Maven with JDK 17 (for compatibility)
+FROM maven:3.8.7-openjdk-17-slim AS build
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -20,13 +20,13 @@ COPY src ./src
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
-# Runtime stage using a lighter OpenJDK image
+# Stage 2: Runtime stage using JDK 22
 FROM openjdk:22-jdk-slim
 
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy the JAR file from the build stage
+# Copy the built JAR file from the build stage
 COPY --from=build /app/target/movies-0.0.1-SNAPSHOT.jar /app/movies-0.0.1-SNAPSHOT.jar
 
 # Expose the port

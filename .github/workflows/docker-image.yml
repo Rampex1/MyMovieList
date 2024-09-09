@@ -1,0 +1,65 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-backend:
+    name: Build and Test Spring Boot Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build Docker Image for Backend
+        run: |
+          if [ -f "./Dockerfile" ]; then
+            docker build --file ./Dockerfile --tag backend-build:latest .
+          elif [ -f "./backend/Dockerfile" ]; then
+            docker build --file ./backend/Dockerfile --tag backend-build:latest ./backend
+          else
+            echo "Dockerfile not found in root or backend directory"
+            exit 1
+          fi
+
+      - name: Run Backend Tests
+        run: |
+          docker run --name backend-test backend-build:latest mvn test -Dsurefire.useFile=false -e -X
+
+      - name: Print Test Output on Failure
+        if: failure()
+        run: |
+          docker logs backend-test
+
+      - name: Clean up Test Container
+        if: always()
+        run: |
+          docker rm backend-test
+
+      - name: Build Production Docker Image for Backend
+        if: success()
+        run: |
+          if [ -f "./Dockerfile" ]; then
+            docker build --file ./Dockerfile --tag backend:latest .
+          elif [ -f "./backend/Dockerfile" ]; then
+            docker build --file ./backend/Dockerfile --tag backend:latest ./backend
+          else
+            echo "Dockerfile not found in root or backend directory"
+            exit 1
+          fi

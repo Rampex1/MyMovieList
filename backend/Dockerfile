@@ -24,3 +24,4 @@ COPY --from=build /app/target/movies-0.0.1-SNAPSHOT.jar /app/movies-0.0.1-SNAPSH
 EXPOSE 8080
 # Command to run the Spring Boot application
 CMD ["java", "-jar", "movies-0.0.1-SNAPSHOT.jar"]
+

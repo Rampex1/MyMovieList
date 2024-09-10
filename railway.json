@@ -1,0 +1,12 @@
+{
+  "build": {
+    "backend": {
+      "builder": "Docker",
+      "dockerfilePath": "backend/Dockerfile"
+    },
+    "frontend": {
+      "builder": "Docker",
+      "dockerfilePath": "frontend/Dockerfile"
+    }
+  }
+}

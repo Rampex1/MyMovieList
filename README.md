@@ -2,6 +2,7 @@
 ## About The Project
 
 [![Home Page Screen Shot][product-screenshot]](https://mymovielist-frontend-5fe8963d70a6.herokuapp.com)
+https://mymovielist-frontend-5fe8963d70a6.herokuapp.com/home
 
 My Movie List is your personal movie diary to help you keep track of all the movies you have watched. 
 
@@ -71,16 +72,20 @@ Here are the instructions to follow in order to set up your project locally.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-1. Browse trending movies 
+1. Browse trending movies
+   
 ![Watchlist Screenshot][watchlist-screenshot]
 
-2. Search for movies 
+2. Search for movies
+   
 ![Search Movie][search-movie-screenshot]
 
 3. Get movie details and add to your personal watchlist
+   
 ![Movie Details][movie-details-screenshot]
 
 4. View your watchlist and modify it
+   
 ![Watchlist][watchlist-screenshot]
 
 

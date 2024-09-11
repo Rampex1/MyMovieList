@@ -96,7 +96,7 @@ Here are the instructions to follow in order to set up your project locally.
 ## Roadmap
 
 - [x] Deploy Website
-- [ ] Fix bugs and QOL
+- [ ] Fix bugs and responsiveness on phone
 - [ ] Create Profile Page with statistics
 - [ ] Personalized movie recommendation 
 - [ ] Community interaction (Upvotes, reviews, add friends)

@@ -25,7 +25,7 @@ const FeaturedMovie: React.FC = () => {
     const fetchTrendingMovies = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/movies/trending');
+        const response = await axios.get('https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/trending');
         console.log('API Response:', response.data); // Log the entire response
 
         if (response.data && Array.isArray(response.data.results)) {
@@ -70,7 +70,7 @@ const FeaturedMovie: React.FC = () => {
   const handleWatchNow = async () => {
     if (!currentMovie) return;
     try {
-      const response = await axios.get(`http://localhost:8080/api/movies/${currentMovie.id}/videos`);
+      const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com//api/movies/${currentMovie.id}/videos`);
       console.log('Video API response:', response.data); // Log the entire response
   
       if (response.data && Array.isArray(response.data.results)) {

@@ -35,7 +35,7 @@ const AddMovieModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, onDele
 
     const fetchPoster = async (movieId: number) => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/movies/${movieId}`);
+        const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/${movieId}`);
         const posterPath = response.data.poster_path;
         if (posterPath) {
           setPosterUrl(`https://image.tmdb.org/t/p/w300${posterPath}`);

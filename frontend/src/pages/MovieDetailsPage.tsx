@@ -86,7 +86,7 @@ const MovieDetailsPage: React.FC = () => {
     
     try {
       await axios.post(
-        `http://localhost:8080/api/users/${username}/movies`,
+        `https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies`,
         { 
           movieId: movieDetails.id.toString(),
           status: 'Plan to Watch',

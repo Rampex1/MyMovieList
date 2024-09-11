@@ -34,7 +34,7 @@ const Home: React.FC = () => {
 
     if (value.length > 2) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(value)}`);
+        const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/search?query=${encodeURIComponent(value)}`);
         setSuggestions(response.data.results.slice(0, 5));
       } catch (error) {
         console.error('Error fetching suggestions:', error);
@@ -46,7 +46,7 @@ const Home: React.FC = () => {
 
   const fetchMoviePoster = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/movies/316029`);
+      const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/316029`);
       const movieData = response.data;
       setPosterPath(movieData.backdrop_path);
     } catch (error) {

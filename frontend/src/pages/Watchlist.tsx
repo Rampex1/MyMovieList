@@ -87,7 +87,7 @@ const Watchlist: React.FC = () => {
 
     const fetchUserMovies = async () => {
         try {
-          const response = await axios.get(`http://localhost:8080/api/users/${username}/movies`);
+          const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies`);
           const movieEntries = response.data;
           const movieDetails = await Promise.all(movieEntries.map(fetchMovieDetails));
           setMovies(movieDetails);
@@ -97,7 +97,7 @@ const Watchlist: React.FC = () => {
       };
     
       const fetchMovieDetails = async (movieEntry: any) => {
-        const response = await axios.get(`http://localhost:8080/api/movies/${movieEntry.movieId}`);
+        const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/${movieEntry.movieId}`);
         const movieData = response.data;
         return {
           id: movieData.id,
@@ -113,7 +113,7 @@ const Watchlist: React.FC = () => {
       const handleAddOrUpdateMovie = async (status: string, score: number) => {
         if (!selectedMovie) return;
         try {
-          await axios.put(`http://localhost:8080/api/users/${username}/movies/${selectedMovie.id}`, {
+          await axios.put(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${selectedMovie.id}`, {
             status,
             score
           });
@@ -132,7 +132,7 @@ const Watchlist: React.FC = () => {
           return;
         }
         try {
-          await axios.delete(`http://localhost:8080/api/users/${username}/movies/${movieId}`);
+          await axios.delete(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${movieId}`);
           fetchUserMovies();
           setIsModalOpen(false);
           setSelectedMovie(null);

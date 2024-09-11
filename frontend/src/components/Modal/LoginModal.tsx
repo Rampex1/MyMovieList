@@ -19,7 +19,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
       e.preventDefault();
       try {
         if (isLoginMode) {
-          const response = await axios.post('http://localhost:8080/api/users/login', { username, password });
+          const response = await axios.post('https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/login', { username, password });
           if (response.data.success) {
             login(username);
             onClose();
@@ -27,7 +27,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
             alert('Login failed. Please try again.');
           }
         } else {
-          const response = await axios.post('http://localhost:8080/api/users/register', { username, email, password });
+          const response = await axios.post('https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/register', { username, email, password });
           if (response.status === 200) {
             alert('Registration successful. Please log in.');
             setIsLoginMode(true);

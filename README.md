@@ -2,7 +2,7 @@
 ## About The Project
 
 [![Home Page Screen Shot][product-screenshot]](https://mymovielist-frontend-5fe8963d70a6.herokuapp.com)
-https://mymovielist-frontend-5fe8963d70a6.herokuapp.com/home
+URL: https://mymovielist-frontend-5fe8963d70a6.herokuapp.com/home
 
 My Movie List is your personal movie diary to help you keep track of all the movies you have watched. 
 

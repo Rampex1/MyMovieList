@@ -1,23 +1,3 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">My Movie List</h3>
-
-  <p align="center">
-    Your Ultimate Movie Diary!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-  </p>
-</div>
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 

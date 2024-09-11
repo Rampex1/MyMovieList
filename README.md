@@ -20,7 +20,7 @@ Of course, more features will be coming!
 This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
 
 * [![React][React.js]][React-url]
-* [![Springboot][Springboot]][Springboot-url]
+* [![Spring Boot][Spring Boot]][Springboot-url]
 * [![MongoDB][MongoDB]][MongoDB-url]
 
 

@@ -1,50 +1,9 @@
 
 How to Redeploy to Heroku After Making Changes:
 
-Step 1: Open Your Terminal
----------------------------------
-Open your terminal (or command prompt) and navigate to your project directory using the `cd` command.
-
-Example:
-cd path/to/your/project
-
-Step 2: Stage Your Changes
----------------------------------
-Use `git add .` to stage all the changes you’ve made to the project.
-
-Command:
+heroku login
+cd frontend or cd backend
+git remote -v
 git add .
-
-Step 3: Commit Your Changes
----------------------------------
-Commit your changes using the `git commit` command. Add a meaningful message explaining what changes you made.
-
-Command:
-git commit -m "Your commit message here"
-
-Step 4: Push Changes to Heroku
----------------------------------
-Once your changes are committed, you can push them to Heroku. 
-
-If your main branch is called 'main', use:
-git push heroku main
-
-If your branch is called 'master', use:
-git push heroku master
-
-Step 5: Verify the Deployment
----------------------------------
-After pushing to Heroku, your app will automatically be rebuilt and redeployed. To verify the changes, visit your Heroku app URL.
-
-Example:
-https://your-app-name.herokuapp.com
-
-Step 6: Check Logs (Optional)
----------------------------------
-If you want to monitor the deployment or check for errors, you can view the logs:
-
-Command:
-heroku logs --tail -a your-app-name
-
----------------------------------
-You have now successfully redeployed your project to Heroku!
+git commit -m "Message"
+git push master

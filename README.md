@@ -74,7 +74,7 @@ Here are the instructions to follow in order to set up your project locally.
 
 1. Browse trending movies
    
-![Watchlist Screenshot][watchlist-screenshot]
+![Watchlist Screenshot][trending-movies-screenshot]
 
 2. Search for movies
    

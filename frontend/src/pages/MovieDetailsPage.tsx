@@ -35,6 +35,7 @@ const MovieDetailsPage: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const [movieDetails, setMovieDetails] = useState<MovieDetails | null>(null);
 	const [cast, setCast] = useState<Credits['cast']>([]);
+	
 	useEffect(() => {
 		const fetchMovieDetails = async () => {
 			try {
@@ -181,7 +182,7 @@ const MovieDetailsPage: React.FC = () => {
 						<p><strong>Country:</strong> {country}</p>
 						<p><strong>Status:</strong> {status}</p>
 						<p><strong>Release Date:</strong> {release_date}</p>
-						<p><strong>Duration:</strong> {formattedRuntime}</p>
+						<p><strong>Runtime:</strong> {formattedRuntime}</p>
 						<p><strong>Budget:</strong> ${budget.toLocaleString()}</p>
 						<p><strong>Revenue:</strong> ${revenue.toLocaleString()}</p>
 					</div>

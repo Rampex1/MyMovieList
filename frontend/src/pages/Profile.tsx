@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const Profile: React.FC = () => {
     const [logo, setLogo] = useState<string | null>(null);
-
     const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {

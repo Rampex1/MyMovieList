@@ -14,27 +14,45 @@ export interface Movie {
     status: string;
 }
 
-interface MovieSuggestion {
-    id: number;
-    title: string;
-    release_date: string;
-}
-
 const Watchlist: React.FC = () => {
+    {/* Get Movies */}
     const [movies, setMovies] = useState<Movie[]>([]);
-    const { isLoggedIn, username } = useUser();
-    const searchRef = useRef<HTMLDivElement>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-    const [activeFilter, setActiveFilter] = useState('All Movies');
-    const navigate = useNavigate();
+    const fetchMovieDetails = async (movieEntry: any) => {
+        const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/${movieEntry.movieId}`);
+        const movieData = response.data;
+        return {
+            id: movieData.id,
+            title: movieData.original_title,
+            country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
+            year: new Date(movieData.release_date).getFullYear(),
+            type: movieData.genres[0]?.name || 'Unknown',
+            score: movieEntry.score,
+            status: movieEntry.status
+        };
+    };
 
+
+    const fetchUserMovies = async () => {
+        try {
+            const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies`);
+            const movieEntries = response.data;
+            const movieDetails = await Promise.all(movieEntries.map(fetchMovieDetails));
+            setMovies(movieDetails);
+        } catch (error) {
+            console.error('Error fetching user movies:', error);
+        }
+    };
+
+    {/* Login */}
+    const { isLoggedIn, username } = useUser();
     useEffect(() => {
         if (isLoggedIn && username) {
             fetchUserMovies();
         }
     }, [isLoggedIn, username]);
 
+    {/* Render Filter Buttons */}
+    const [activeFilter, setActiveFilter] = useState('All Movies');
     const filterButtons = [
         'All Movies',
         'Currently Watching',
@@ -43,7 +61,7 @@ const Watchlist: React.FC = () => {
         'On-hold',
         'Dropped'
     ];
-
+    
     const renderFilterButtons = () => (
         <div className="w-full lg:w-4/5 mx-auto mb-6 bg-blue-500 rounded-t-lg overflow-hidden">
             <div className="flex flex-wrap">
@@ -64,81 +82,13 @@ const Watchlist: React.FC = () => {
         </div>
     );
 
+    {/* Render Tables */}
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+    const navigate = useNavigate();
+
     const handleSearch = (movieId: string) => {
         navigate(`/movie/${movieId}`);
-    };
-
-    const renderTables = () => {
-        if (activeFilter === 'All Movies') {
-            return (
-                <>
-                    {renderMovieTable('Currently Watching')}
-                    {renderMovieTable('Completed')}
-                    {renderMovieTable('Plan To Watch')}
-                    {renderMovieTable('On-hold')}
-                    {renderMovieTable('Dropped')}
-                </>
-            );
-        } else {
-            return renderMovieTable(activeFilter);
-        }
-    };
-
-    const fetchUserMovies = async () => {
-        try {
-            const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies`);
-            const movieEntries = response.data;
-            const movieDetails = await Promise.all(movieEntries.map(fetchMovieDetails));
-            setMovies(movieDetails);
-        } catch (error) {
-            console.error('Error fetching user movies:', error);
-        }
-    };
-
-    const fetchMovieDetails = async (movieEntry: any) => {
-        const response = await axios.get(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/movies/${movieEntry.movieId}`);
-        const movieData = response.data;
-        return {
-            id: movieData.id,
-            title: movieData.original_title,
-            country: movieData.production_countries[0]?.iso_3166_1 || 'Unknown',
-            year: new Date(movieData.release_date).getFullYear(),
-            type: movieData.genres[0]?.name || 'Unknown',
-            score: movieEntry.score,
-            status: movieEntry.status
-        };
-    };
-
-    const handleAddOrUpdateMovie = async (status: string, score: number) => {
-        if (!selectedMovie) return;
-        try {
-            await axios.put(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${selectedMovie.id}`, {
-                status,
-                score
-            });
-            fetchUserMovies();
-            setIsModalOpen(false);
-            setSelectedMovie(null);
-        } catch (error) {
-            console.error('Error updating movie:', error);
-            alert('Error updating movie. Please try again.');
-        }
-    };
-
-    const handleDelete = async (movieId: string) => {
-        if (!isLoggedIn) {
-            alert('Please log in to remove movies from your watchlist.');
-            return;
-        }
-        try {
-            await axios.delete(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${movieId}`);
-            fetchUserMovies();
-            setIsModalOpen(false);
-            setSelectedMovie(null);
-        } catch (error) {
-            console.error('Error removing movie:', error);
-            alert('Error removing movie. Please try again.');
-        }
     };
 
     const handleEditMovie = (movie: Movie) => {
@@ -193,6 +143,53 @@ const Watchlist: React.FC = () => {
                 </tbody>
             </table>
         );
+    };
+
+    const renderTables = () => {
+        if (activeFilter === 'All Movies') {
+            return (
+                <>
+                    {renderMovieTable('Currently Watching')}
+                    {renderMovieTable('Completed')}
+                    {renderMovieTable('Plan To Watch')}
+                    {renderMovieTable('On-hold')}
+                    {renderMovieTable('Dropped')}
+                </>
+            );
+        } else {
+            return renderMovieTable(activeFilter);
+        }
+    };
+
+    {/* Modal Functionalities */}
+    const handleAddOrUpdateMovie = async (status: string, score: number) => {
+        if (!selectedMovie) return;
+        try {
+            await axios.put(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${selectedMovie.id}`, {
+                status,
+                score
+            });
+            fetchUserMovies();
+            setIsModalOpen(false);
+            setSelectedMovie(null);
+        } catch (error) {
+            alert('Error updating movie. Please try again.');
+        }
+    };
+
+    const handleDelete = async (movieId: string) => {
+        if (!isLoggedIn) {
+            alert('Please log in to remove movies from your watchlist.');
+            return;
+        }
+        try {
+            await axios.delete(`https://mymovielist-backend-321e199cbab8.herokuapp.com/api/users/${username}/movies/${movieId}`);
+            fetchUserMovies();
+            setIsModalOpen(false);
+            setSelectedMovie(null);
+        } catch (error) {
+            alert('Error removing movie. Please try again.');
+        }
     };
 
     return (
